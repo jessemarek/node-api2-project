@@ -102,6 +102,33 @@ router.get('/:id', (req, res) => {
         })
 })
 
+//Return all the comments for a Post by post ID
+router.get('/:id/comments', (req, res) => {
+    //CHeck to see if the post exists in the DB
+    Posts.findById(req.params.id)
+        .then(post => {
+            if (post) {
+                Posts.findPostComments(req.params.id)
+                    .then(comments => {
+                        if (comments.length > 0) {
+                            res.status(200).json(comments)
+                        }
+                        else res.status(500).json({ error: "The comments information could not be retrieved." })
+                    })
+            }
+            //Return error message Not Found
+            else res.status(404).json({ message: "The post with the specified ID does not exist." })
+        })
+        //Return the server error message
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ error: "The comments information could not be retrieved." })
+        })
+
+
+
+})
+
 //Destroy a post in the DB by post id
 router.delete('/:id', (req, res) => {
 
