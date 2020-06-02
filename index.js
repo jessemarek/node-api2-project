@@ -10,3 +10,11 @@ server.listen(port, () => {
 })
 
 /****************************************************************/
+
+//Middleware
+server.use(express.json())
+
+//Routers
+const postsRouter = require('./posts/postsRouter')
+
+server.use('/api/posts', postsRouter)
