@@ -11,9 +11,9 @@ router.post('/', (req, res) => {
         //Add the data to the DB
         Posts.insert(req.body)
             //Return the newly created object along with status code
-            .then(id => {
+            .then(post => {
                 //Retrieve the newly created post by the id
-                Posts.findById(Number(id))
+                Posts.findById(post.id)
                     .then(post => {
                         //Return the new post
                         res.status(201).json(post)
@@ -45,15 +45,20 @@ router.get('/', (req, res) => {
 
 //Return a post in the DB by the post id
 router.get('/:id', (req, res) => {
+    //Search the DB for a post matching the id
     Posts.findById(Number(req.params.id))
         .then(post => {
-            //Return the post
-            res.status(201).json(post)
+            if (post) {
+                //Return the post
+                res.status(201).json(post)
+            }
+            //Return error message Not Found
+            else res.status(404).json({ message: "The post with the specified ID does not exist." })
         })
-        //Return error message Not Found
+        //Return server error message
         .catch(err => {
             console.log(err)
-            res.status(404).json({ message: "The post with the specified ID does not exist." })
+            res.status(500).json({ error: "The post information could not be retrieved." })
         })
 })
 
