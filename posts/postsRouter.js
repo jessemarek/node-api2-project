@@ -35,6 +35,40 @@ router.post('/', (req, res) => {
 
 })
 
+//CREATE a new comment associated with a post
+router.post('/:id/comments', (req, res) => {
+    //Check to see if the post exists
+    Posts.findById(req.params.id)
+        .then(post => {
+            if (post) {
+                if (req.body.text) {
+                    //Prepare the comment object and send to the DB
+                    Posts.insertComment({
+                        text: req.body.text,
+                        post_id: Number(req.params.id)
+                    })
+                        //Return the success code and newly created comment
+                        .then(cId => {
+                            Posts.findCommentById(cId.id)
+                                .then(comment => {
+                                    res.status(201).json(comment)
+                                })
+                        })
+                }
+                //Return error message Bad Request
+                else res.status(400).json({ errorMessage: "Please provide text for the comment." })
+            }
+            //Return error message Not Found
+            else res.status(404).json({ message: "The post with the specified ID does not exist." })
+
+        })
+        //Return server error message
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ error: "There was an error while saving the comment to the database" })
+        })
+})
+
 //Return all the posts in the DB
 router.get('/', (req, res) => {
     Posts.find()
