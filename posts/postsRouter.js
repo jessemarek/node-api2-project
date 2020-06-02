@@ -39,7 +39,13 @@ router.post('/', (req, res) => {
 router.get('/', (req, res) => {
     Posts.find()
         .then(posts => {
+            //Return all posts in the DB
             res.status(200).json(posts)
+        })
+        //Return the server error message
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ error: "The posts information could not be retrieved." })
         })
 })
 
@@ -65,6 +71,31 @@ router.get('/:id', (req, res) => {
 //Destroy a post in the DB by post id
 router.delete('/:id', (req, res) => {
 
+    Posts.findById(req.params.id)
+        .then(post => {
+            if (post) {
+                Posts.remove(req.params.id)
+                    .then(deleted => {
+                        if (deleted) {
+                            res.status(200).json(post)
+                        }
+                        //Return error message if user ID cannot be found
+                        else res.status(404).json({ message: "The post with the specified ID does not exist." })
+                    })
+                    //Return server error message
+                    .catch(err => {
+                        console.log(err)
+                        res.status(500).json({ error: "The post could not be removed" })
+                    })
+            }
+            //Return error message if user ID cannot be found
+            else res.status(404).json({ message: "The post with the specified ID does not exist." })
+        })
+        //Return server error message
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({ error: "The post could not be removed" })
+        })
 })
 
 //Modify a post in the DB by post id
